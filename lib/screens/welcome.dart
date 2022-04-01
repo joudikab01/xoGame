@@ -26,18 +26,23 @@ class Welcome extends StatelessWidget {
             ),
           ),
           Positioned(
-            right: _width/4,
-            top: _height/8,
+            right: _width / 4,
+            top: _height / 8,
             child: Column(
               children: [
                 Text(
                   'Tic Tac Toe',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 30
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 30),
                 ),
-                SizedBox(height: _height/8,),
+                SizedBox(
+                  height: _height / 10,
+                ),
+                Image.asset(
+                  'assets/xo.jpeg',
+                ),
+                SizedBox(
+                  height: _height / 10,
+                ),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pushReplacementNamed(context, Game.route);
