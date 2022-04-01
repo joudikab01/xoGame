@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 
 class Game extends StatefulWidget {
@@ -17,40 +18,190 @@ class _GameState extends State<Game> {
 
   @override
   Widget build(BuildContext context) {
+    var _size = MediaQuery.of(context).size;
+    double _width = _size.width;
+    double _height = _size.height;
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
+        body: Stack(
           children: [
-            ElevatedButton(
-              onPressed: () => _clearBoard(),
-              child: const Text(
-                'Restart',
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                    image:  AssetImage(
+                      'assets/star.jpg',
+                    ),
+                    fit: BoxFit.fill),
               ),
             ),
-            Expanded(
-              child: GridView.builder(
-                itemCount: 9,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: 20,
                 ),
-                itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    onTap: () => tapped(index),
-                    child: Container(
-                      decoration: BoxDecoration(border: isBorder(index)),
-                      child: Center(
-                        child: Text(
-                          gameBoard[index],
-                          style: TextStyle(color: Colors.white),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      children: [
+                        const Text(
+                          'Player X',
+                          style:  TextStyle(
+                            color: Colors.white,
+                            fontSize: 25
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          xScore.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                              fontSize: 30
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      //mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const Text(
+                          'Player O',
+                          style:  TextStyle(
+                            color: Colors.white,
+                              fontSize: 25
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          oScore.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                              fontSize: 30
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: _height / 10,
+                ),
+                Expanded(
+                  child: GridView.builder(
+                    itemCount: 9,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                    ),
+                    itemBuilder: (BuildContext context, int index) {
+                      return GestureDetector(
+                        onTap: () => tapped(index),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: isBorder(index),
+                          ),
+                          child: Center(
+                            child: AnimatedTextKit(
+                              repeatForever: true,
+                              pause: const Duration(milliseconds: 1000),
+                              displayFullTextOnTap: true,
+                              stopPauseOnTap: true,
+                              animatedTexts: [
+                                ColorizeAnimatedText(
+                                  gameBoard[index],
+                                  textStyle: const TextStyle(
+                                      fontSize: 47.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                                  speed: const Duration(
+                                    milliseconds: 1000,
+                                  ),
+                                  colors: [
+                                    Colors.white,
+                                    Colors.grey,
+                                    Colors.black38,
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: _height / 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      SizedBox(
+                        height: _height / 15,
+                        width: _width / 2.5,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.transparent,
+                            shadowColor: Colors.black38,
+                            elevation: 10,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                25,
+                              ),
+                            ),
+                            side: const BorderSide(
+                              color: Colors.white,
+                              width: 4,
+                              style: BorderStyle.solid,
+                            ),
+                          ),
+                          onPressed: () => _clearBoard(),
+                          child: const Text(
+                            'Restart',
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
+                      SizedBox(
+                        height: _height / 15,
+                        width: _width / 2.5,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.transparent,
+                            shadowColor: Colors.black38,
+                            elevation: 10,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                25,
+                              ),
+                            ),
+                            side: const BorderSide(
+                              color: Colors.white,
+                              width: 4,
+                              style: BorderStyle.solid,
+                            ),
+                          ),
+                          onPressed: () => _clearScoreBoard(),
+                          child: const Text(
+                            'Reset scores',
+                            style: TextStyle(
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -64,13 +215,13 @@ class _GameState extends State<Game> {
         gameBoard[index] = 'X';
         playedSpots++;
         xTurn = !xTurn;
+        _checkWinner();
       } else if (!xTurn && gameBoard[index] == '') {
         gameBoard[index] = 'O';
         playedSpots++;
         xTurn = !xTurn;
+        _checkWinner();
       }
-
-      _checkWinner();
     });
   }
 
@@ -138,10 +289,10 @@ class _GameState extends State<Game> {
         right: BorderSide.none,
       );
     }
+    return null;
   }
 
   void _checkWinner() {
-    // Checking rows
     if (gameBoard[0] == gameBoard[1] &&
         gameBoard[0] == gameBoard[2] &&
         gameBoard[0] != '') {
@@ -157,8 +308,6 @@ class _GameState extends State<Game> {
         gameBoard[6] != '') {
       _showWinDialog(gameBoard[6]);
     }
-
-    // Checking Column
     if (gameBoard[0] == gameBoard[3] &&
         gameBoard[0] == gameBoard[6] &&
         gameBoard[0] != '') {
@@ -174,8 +323,6 @@ class _GameState extends State<Game> {
         gameBoard[2] != '') {
       _showWinDialog(gameBoard[2]);
     }
-
-    // Checking Diagonal
     if (gameBoard[0] == gameBoard[4] &&
         gameBoard[0] == gameBoard[8] &&
         gameBoard[0] != '') {
@@ -196,10 +343,17 @@ class _GameState extends State<Game> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("\" " + winner + " \" is Winner!!!"),
+            title: Text(
+              "\" " + winner + " \" is Winner!!!",
+            ),
             actions: [
               TextButton(
-                child: Text("Play Again"),
+                child: const Text(
+                  "Play Again",
+                  style: TextStyle(
+                    color: Colors.teal,
+                  ),
+                ),
                 onPressed: () {
                   _clearBoard();
                   Navigator.of(context).pop();
@@ -222,10 +376,10 @@ class _GameState extends State<Game> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Draw"),
+            title: const Text("Draw"),
             actions: [
               TextButton(
-                child: Text("Play Again"),
+                child: const Text("Play Again"),
                 onPressed: () {
                   _clearBoard();
                   Navigator.of(context).pop();
@@ -242,7 +396,6 @@ class _GameState extends State<Game> {
         gameBoard[i] = '';
       }
     });
-
     playedSpots = 0;
   }
 
